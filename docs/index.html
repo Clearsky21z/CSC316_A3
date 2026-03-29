@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Invincible | Bayer Leverkusen 2023/24</title>
+    <meta
+      name="description"
+      content="An interactive D3 visualization of Bayer Leverkusen's unbeaten 2023/24 Bundesliga season."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Manrope:wght@400;500;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+    <script defer src="main.js"></script>
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero">
+        <div class="hero-copy">
+          <div class="hero-mark">
+            <img
+              class="club-logo"
+              src="assets/leverkusen-logo.png"
+              alt="Bayer 04 Leverkusen logo"
+            />
+            <div>
+              <p class="eyebrow">CSC316 Interactive Visualization</p>
+              <p class="hero-system">Invincible Run / Bayer Leverkusen / 34 Matches</p>
+            </div>
+          </div>
+          <div class="hero-title-block">
+            <h1>INVINCIBLE</h1>
+            <div class="hero-title-rule" aria-hidden="true"></div>
+            <p class="hero-season-tag">Season 2023/2024</p>
+          </div>
+        </div>
+        <div class="hero-side">
+          <div class="hero-metrics" id="hero-metrics"></div>
+        </div>
+      </header>
+
+      <section class="panel season-panel">
+        <div class="section-head">
+          <div>
+            <p class="section-kicker">Invincible Season</p>
+            <h2>Season Results, Match By Match</h2>
+          </div>
+          <div class="season-head-side">
+            <p class="section-copy">
+              The line shows how Leverkusen's points total grew across the season.
+              Start with autoplay or the round slider, then click any match to load
+              that fixture into the detailed explorer below.
+            </p>
+          </div>
+        </div>
+        <div class="season-layout">
+          <div class="season-primary">
+            <div class="season-toolbar">
+              <p class="season-start-hint">
+                Start here: autoplay the unbeaten run, drag to any round, or click
+                a match marker to inspect that game in detail.
+              </p>
+              <div class="season-controls">
+                <button class="ghost-button season-autoplay-button" id="season-autoplay" type="button">Autoplay Season</button>
+                <div class="season-round-control">
+                  <label class="season-round-label" for="season-round">
+                    Round <span id="season-round-value">1 / 34</span>
+                  </label>
+                  <input id="season-round" type="range" min="1" max="34" step="1" value="1" />
+                </div>
+              </div>
+            </div>
+            <div id="season-chart" class="chart-frame season-frame"></div>
+            <p class="season-note">
+              Gold marks wins, teal marks draws, and the line rises whenever
+              Leverkusen added points.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel story-panel">
+        <div class="section-head">
+          <div>
+            <p class="section-kicker">Team MVPs</p>
+            <h2>Three MVPs Of The Season</h2>
+          </div>
+          <p class="section-copy">
+            Click one player to filter the season to that player's most important
+            passing actions.
+          </p>
+        </div>
+        <div class="story-grid" id="story-grid"></div>
+      </section>
+
+      <section class="panel controls-panel">
+        <div class="section-head compact">
+          <div>
+            <p class="section-kicker">Interactive Explorer</p>
+            <h2>Explore One Match Or One Player</h2>
+          </div>
+          <button class="ghost-button" id="reset-filters" type="button">Reset Filters</button>
+        </div>
+
+        <div class="controls-grid">
+          <label class="control">
+            <span>Match</span>
+            <select id="match-select"></select>
+          </label>
+          <label class="control">
+            <span>Player</span>
+            <select id="player-select"></select>
+          </label>
+          <label class="control">
+            <span>Pass Focus</span>
+            <select id="pass-type-select"></select>
+          </label>
+          <label class="control">
+            <span>Situation</span>
+            <select id="phase-select"></select>
+          </label>
+          <label class="control">
+            <span>Pass Result</span>
+            <select id="outcome-select"></select>
+          </label>
+        </div>
+
+        <div class="selection-summary">
+          <div>
+            <p class="selection-kicker">Current View</p>
+            <p class="selection-caption" id="selection-caption"></p>
+          </div>
+          <p class="render-note" id="render-note"></p>
+        </div>
+
+        <div class="metric-row" id="selection-metrics"></div>
+      </section>
+
+      <section class="workspace">
+        <div class="panel pitch-panel">
+          <div class="panel-header">
+            <div>
+              <p class="section-kicker">Pass Map</p>
+              <h2>Where The Ball Went</h2>
+            </div>
+            <div class="legend" id="pitch-legend"></div>
+          </div>
+          <div id="pitch-chart" class="chart-frame pitch-frame"></div>
+          <div class="embedded-divider" aria-hidden="true"></div>
+          <div class="embedded-section-head">
+            <div>
+              <p class="section-kicker">Timeline Filter</p>
+              <h2>When These Passes Happened</h2>
+            </div>
+            <button class="ghost-button" id="clear-brush" type="button">Clear Brush</button>
+          </div>
+          <p class="timeline-copy embedded-timeline-copy">
+            Drag across the bars to focus on one stretch of time.
+          </p>
+          <div id="timeline-chart" class="chart-frame embedded-timeline-frame"></div>
+        </div>
+
+        <div class="panel ranking-panel">
+          <div class="panel-header">
+            <div>
+              <p class="section-kicker">Player Ranking</p>
+              <h2>Most Active Players</h2>
+            </div>
+          </div>
+          <div id="ranking-chart" class="chart-frame"></div>
+          <p class="sidebar-note">
+            Click a bar to show only that player's passes on the map.
+          </p>
+        </div>
+
+        <div class="panel sequence-panel">
+          <div class="panel-header">
+            <div>
+              <p class="section-kicker">Details On Demand</p>
+              <h2>Selected Passing Move</h2>
+            </div>
+            <button class="ghost-button" id="clear-sequence" type="button">Clear Selection</button>
+          </div>
+          <div class="sequence-layout">
+            <div class="sequence-copy">
+              <p class="sequence-intro" id="sequence-intro">
+                Click any line on the pass map to replay the full passing move.
+              </p>
+              <div class="sequence-meta" id="sequence-meta"></div>
+            </div>
+            <div id="sequence-chart" class="chart-frame sequence-frame"></div>
+          </div>
+        </div>
+      </section>
+
+      <footer class="credits panel">
+        <p>
+          Data: StatsBomb Open Data, 1. Bundesliga 2023/2024. Built with D3.js for
+          static deployment on GitHub Pages.
+        </p>
+        <p>
+          Please credit StatsBomb if you publish or share analysis based on this
+          dataset. This visualization focuses on Bayer Leverkusen's unbeaten
+          league season and the passing patterns behind it.
+        </p>
+        <p>
+          Interaction design follows CSC316 ideas such as dynamic queries,
+          brushing, details-on-demand, and overview-to-detail exploration. Club
+          crest shown here as a local Bayer 04 Leverkusen project asset.
+        </p>
+      </footer>
+    </div>
+
+    <div class="tooltip hidden" id="tooltip"></div>
+  </body>
+</html>
